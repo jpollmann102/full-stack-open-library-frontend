@@ -14,9 +14,6 @@ const Authors = (props) => {
     return <div>loading...</div>
   }
 
-  console.log(result.loading);
-  console.log(result.data);
-
   const authors = result.data.allAuthors;
 
   return (
@@ -42,7 +39,7 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
-      <AuthorForm />
+      <AuthorForm authors={ authors }/>
     </div>
   )
 }
