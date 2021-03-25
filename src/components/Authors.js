@@ -1,4 +1,5 @@
 import React from 'react';
+import AuthorForm from './AuthorForm';
 import { ALL_AUTHORS } from '../queries';
 import { useQuery } from '@apollo/client';
 
@@ -12,6 +13,9 @@ const Authors = (props) => {
   if(result.loading) {
     return <div>loading...</div>
   }
+
+  console.log(result.loading);
+  console.log(result.data);
 
   const authors = result.data.allAuthors;
 
@@ -38,7 +42,7 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
-
+      <AuthorForm />
     </div>
   )
 }
