@@ -1,14 +1,21 @@
 import React, { useState } from 'react'
-import { ALL_BOOKS, ALL_BOOKS_BY_GENRE } from '../queries';
-import { useQuery, useLazyQuery } from '@apollo/client';
+import { ALL_BOOKS, ALL_BOOKS_BY_GENRE, BOOK_ADDED } from '../queries';
+import { useQuery, useLazyQuery, useSubscription } from '@apollo/client';
 
-const Books = (props) => {
+const Books = ({ show, updateCacheWith }) => {
   const [ genreFilter, setGenreFilter ] = useState('');
 
   const result = useQuery(ALL_BOOKS);
   const [ getGenre, { called, loading, data } ] = useLazyQuery(ALL_BOOKS_BY_GENRE, { variables: { genre: genreFilter } });
 
-  if (!props.show) {
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      const addedBook = subscriptionData.data.bookAdded;
+      updateCacheWith(addedBook);
+    }
+  });
+
+  if (!show) {
     return null
   }
 
@@ -18,6 +25,8 @@ const Books = (props) => {
 
   const books = result.data.allBooks;
   const filteredBooks = data && genreFilter ? data.allBooks : null;
+
+  console.log('filteredBooks', filteredBooks);
 
   const booksContent = () => {
     if(filteredBooks)
@@ -66,6 +75,7 @@ const Books = (props) => {
 
   const updateBooks = (genre) => {
     setGenreFilter(genre);
+    console.log(genre);
     getGenre();
   }
 

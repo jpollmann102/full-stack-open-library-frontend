@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useApolloClient, useQuery } from '@apollo/client';
-import { GET_USER } from './queries';
+import { GET_USER, ALL_BOOKS } from './queries';
 import Books from './components/Books'
 import Login from './components/Login';
 import Authors from './components/Authors'
@@ -12,6 +12,19 @@ const App = () => {
   const [ user, setUser ] = useState(null);
   const result = useQuery(GET_USER);
   const client = useApolloClient();
+
+  const updateCacheWith = (addedBook) => {
+    const includedIn = (set, object) => set.map(b => b.id).includes(object.id);
+
+    const dataInStore = client.readQuery({ query: ALL_BOOKS });
+    if(!includedIn(dataInStore.allBooks, addedBook))
+    {
+      client.writeQuery({
+        query: ALL_BOOKS,
+        data: { allBooks: dataInStore.allBooks.concat(addedBook) }
+      });
+    }
+  }
 
   useEffect(() => {
     if(result.data)
@@ -56,10 +69,11 @@ const App = () => {
 
       <Books
         show={page === 'books'}
+        updateCacheWith={ updateCacheWith }
       />
 
       <NewBook
-        show={page === 'add' && user}
+        show={page === 'add' && user}  
       />
 
       <Recommendations
