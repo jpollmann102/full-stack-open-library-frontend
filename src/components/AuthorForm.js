@@ -31,10 +31,10 @@ const AuthorForm = ({ authors }) => {
       <h2>Set birthyear</h2>
       <form onSubmit={ submit }>
         <div>
-          <label for="name">Choose a name:</label>
+          Choose a name:
           <select name="name" onChange={ ({ target }) => setName(target.value) } >
             {authors.map(author =>
-              <option value={ author.name }>{ author.name }</option>
+              <option key={ author.name } value={ author.name }>{ author.name }</option>
             )}
           </select>
         </div>
