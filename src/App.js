@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react'
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient, useQuery } from '@apollo/client';
+import { GET_USER } from './queries';
 import Books from './components/Books'
 import Login from './components/Login';
 import Authors from './components/Authors'
 import NewBook from './components/NewBook'
+import Recommendations from './components/Recommendations';
 
 const App = () => {
   const [page, setPage] = useState('authors')
-  const [ token, setToken ] = useState(null);
+  const [ user, setUser ] = useState(null);
+  const result = useQuery(GET_USER);
   const client = useApolloClient();
 
   useEffect(() => {
-    const token = window.localStorage.getItem('library-token');
-    if(token) setToken(token);
-  }, []);
+    if(result.data)
+    {
+      const user = result.data.me;
+      setUser(user);
+    }
+  }, [result.data]);
 
   const logout = () => {
-    setToken(null);
+    setUser(null);
     localStorage.removeItem('library-token');
     client.resetStore();
   }
 
-  const login = (token) => {
-    setToken(token);
+  const login = () => {
     setPage('authors');
   }
 
@@ -32,13 +37,16 @@ const App = () => {
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         {
-          token && <button onClick={() => setPage('add')}>add book</button>
+          user && <button onClick={() => setPage('add')}>add book</button>
         }
         {
-          !token && <button onClick={() => setPage('login')}>login</button>
+          user && <button onClick={() => setPage('recommend')}>recommend</button>
         }
         {
-          token && <button onClick={ logout }>logout</button>
+          !user && <button onClick={() => setPage('login')}>login</button>
+        }
+        {
+          user && <button onClick={ logout }>logout</button>
         }
       </div>
 
@@ -51,7 +59,12 @@ const App = () => {
       />
 
       <NewBook
-        show={page === 'add' && token}
+        show={page === 'add' && user}
+      />
+
+      <Recommendations
+        show={page === 'recommend' && user}
+        favorite={ user ? user.favoriteGenre : null }
       />
 
       <Login
